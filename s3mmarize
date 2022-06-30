@@ -1,0 +1,36 @@
+#!/bin/bash
+
+## set local variables
+echo "Setting local variables."
+export bucket=$1
+export out_file=$2
+export detailed=$3
+if [ "$detailed" != "--detailed" ]; then
+    export detailed=""
+fi
+export names_file=abc123.csv
+export vals_file=xyz321.csv
+
+## get file names
+echo "Using gustil to get file names."
+gsutil ls -lr $bucket 	 		`## list detailed recursive bucket info` \
+| egrep -v -e "/:|bytes" 		`## remove some of the dirs and the total statement` \
+| sed -e 's/^[[:space:]]*//' 		`## remove leading whitespace` \
+| grep -v '^$' 				`## remove blank lines` \
+| sed 's/.*Z  //' 			`## capture paths, after timestamp` \
+> $names_file				`## pipe results into $names_file` \
+
+## get memory usage and timestamp
+echo "Using gsutil to get memory usage."
+gsutil ls -lr $bucket 			`## list detailed recursive bucket info` \
+| egrep -v -e "/:|bytes" 		`## remove some of the dirs and the total statement` \
+| sed -e 's/^[[:space:]]*//' 		`## remove leading whitespace` \
+| grep -v '^$' 				`## remove blank lines` \
+| cut -dZ -f1 				`## capture everything before the end of timestamp` \
+| tr -s " " , 				`## replace spaces with commas for CSV` \
+> $vals_file				`## pipe results into $vals_file`
+
+## run python to create dataframe
+echo "Using python to create summary data."
+python3 s3mmarize-internal.py summarize $bucket $names_file $vals_file $out_file $detailed
+echo "File saved."
