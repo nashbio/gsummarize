@@ -11,24 +11,29 @@ fi
 export names_file=abc123.csv
 export vals_file=xyz321.csv
 
+## make call to Google
+echo "Using gsutil to get file list."
+gsutil ls -lr $bucket                   `## list detailed recursive bucket info` \
+| egrep -v -e "/:|bytes"                `## remove some of the dirs and the total statement` \
+| sed -e 's/^[[:space:]]*//'            `## remove leading whitespace` \
+| grep -v '^$'                          `## remove blank lines` \
+> temp.txt
+
 ## get file names
-echo "Using gustil to get file names."
-gsutil ls -lr $bucket 	 		`## list detailed recursive bucket info` \
-| egrep -v -e "/:|bytes" 		`## remove some of the dirs and the total statement` \
-| sed -e 's/^[[:space:]]*//' 		`## remove leading whitespace` \
-| grep -v '^$' 				`## remove blank lines` \
+echo "Getting file names."
+cat temp.txt 				`## print list` \
 | sed 's/.*Z  //' 			`## capture paths, after timestamp` \
 > $names_file				`## pipe results into $names_file` \
 
 ## get memory usage and timestamp
-echo "Using gsutil to get memory usage."
-gsutil ls -lr $bucket 			`## list detailed recursive bucket info` \
-| egrep -v -e "/:|bytes" 		`## remove some of the dirs and the total statement` \
-| sed -e 's/^[[:space:]]*//' 		`## remove leading whitespace` \
-| grep -v '^$' 				`## remove blank lines` \
+echo "Getting memory usage."
+cat temp.txt                            `## print list` \
 | cut -dZ -f1 				`## capture everything before the end of timestamp` \
 | tr -s " " , 				`## replace spaces with commas for CSV` \
 > $vals_file				`## pipe results into $vals_file`
+
+## remove temp
+rm temp.txt
 
 ## run python to create dataframe
 echo "Using python to create summary data."
