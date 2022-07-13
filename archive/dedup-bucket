@@ -1,0 +1,24 @@
+#!/bin/bash
+
+## set local variables
+echo "Setting local variables."
+export bucket=$1
+export out_file=$2
+export temp_file=xyz456.csv
+
+## make call to Google
+echo "Using gsutil to get MD5 hashes."
+gsutil ls -Lr $bucket						`## List files with hashes` \
+| grep -E 'gs://|(md5)'						`## Select blob names with hashes` \
+| grep -B1 --no-group-separator 'md5'				`## Reorder` \
+| awk 'NR%2==0 {print p"\t"$0;} NR%2 {p=$0;}'			`## Print out in nice order` \
+| sed -e "s/:[[:space:]]*Hash (md5):[[:space:]]*/,/"    	`## Remove spaces and format for CSV` \
+> $temp_file
+
+## run Python to create output data for analysis
+echo "Using Python to create summary data."
+python3 dedup-bucket-internal.py $temp_file $out_file
+echo "File saved."
+
+## remove temp
+rm $temp_file
