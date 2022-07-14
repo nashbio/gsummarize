@@ -42,7 +42,7 @@ And a non-detailed (e.g. without the `--detailed` flag) version groups just by t
 
 # dedup-bucket
 
-A bash script that creates a table for duplicate files in a GCP S3 bucket based on their MD5 hashes. Note that this method specifically identifies duplicates *files*, and not duplicate *directories*, since duplicate directories may not 
+A Python script that creates a table for duplicate files in a GCP S3 bucket based on their MD5 hashes. Note also that the script determines the filetype and size (in bytes) of the file. 
 
 For proper usage, either run the module in a the Google Cloud Shell or set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to the proper service account key.
 
@@ -50,19 +50,19 @@ Note that after setting these credentials, the output CSV can be specified as a 
 
 ### Example
 
-The following command lists the MD5 hashes of all blobs in the bucket, `lorem`, determines duplicate hashes, and outputs the resulting table to `output.csv`.
+The following command lists the MD5 hashes of all blobs in the bucket, `lorem`, determines duplicate hashes, and outputs the resulting table to `output.csv`. The `--include-dirs` flag will include directories when determining duplicates. 
 
 ```bash
-dedup-bucket "gs://path/to/bucket" "output.csv"
+dedup-bucket "gs://path/to/bucket" "output.csv" --include-dirs
 ```
 
 This produces results that look like the following:
 
-| **blob**       | **hash** | **filetype** | **duplicate_files** |
-| -------------- | -------- | ------------ | ------------------- |
-| /path/to/dir1  | abcd1234 | NA           | FALSE               |
-| /path/to/dir2  | abcd4231 | NA           | FALSE               |
-| /path/to/file1 | wxyz1234 | csv          | TRUE                |
-| /path/to/file2 | abcd5678 | gz           | FALSE               |
-| /path/to/file3 | wxyz1234 | csv          | TRUE                |
+| **blob**       | filetype | **md5_hash** | size | **duplicated** |
+| -------------- | -------- | ------------ | ---- | -------------- |
+| /path/to/dir1  | NA       | abcd1234     | 11   | FALSE          |
+| /path/to/dir2  | NA       | abcd4231     | 11   | FALSE          |
+| /path/to/file1 | csv      | wxyz1234     | 240  | TRUE           |
+| /path/to/file2 | gz       | abcd5678     | 38   | FALSE          |
+| /path/to/file3 | csv      | wxyz1234     | 167  | TRUE           |
 
