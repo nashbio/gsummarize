@@ -53,7 +53,11 @@ Note that after setting these credentials, the output CSV can be specified as a 
 The following command lists the MD5 hashes of all blobs in the bucket, `lorem`, determines duplicate hashes, and outputs the resulting table to `output.csv`. The `--include-dirs` flag will include directories when determining duplicates. 
 
 ```bash
+<<<<<<< HEAD
 dedup-bucket.py "gs://path/to/bucket" "output.csv" --include-dirs
+=======
+dedup-bucket "gs://path/to/bucket" "output.csv" --include-dirs
+>>>>>>> 92bcac3 (reformat dedup script)
 ```
 
 This produces results that look like the following:
