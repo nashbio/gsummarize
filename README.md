@@ -1,11 +1,11 @@
-## s3mmarize
+# s3mmarize
 
 A command line tools to summarize files in a Google cloud S3 bucket. The `summary` command generates a tab-delimited summary of files, file types, and storage usage. The `dedup` command generates a tab-delimited list of duplicate files in a Google cloud S3 bucket. Note that given the oft-included comma in filenames, tab-delimited output is preferred -- use `--cd` to override and save outputs as comma-delimited files.
 
 For proper usage, either run the module in a the Google Cloud Shell or set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to the proper service account key. Note also that after setting these credentials, the output CSV can be specified as a `gsutil` URI (e.g., a user can save the resulting file to a GCP bucket).
 
 
-### `summary` example
+## `summary` example
 
 The following command summarizes the bucket, `gs://path/to/bucket`, and outputs a detailed CSV in the `output.csv`. 
 
@@ -36,9 +36,7 @@ And a non-detailed (e.g. without the `--detailed` flag) version groups just by t
 
 ---
 
----
-
-# `dedup` exmaple
+## `dedup` exmaple
 
 The following command lists the MD5 hashes of all blobs in the bucket, `gs://path/to/bucket`, determines duplicate hashes, and outputs the resulting table to `output.csv`. The `--include-dirs` flag will include directories when determining duplicates. To only output the duplicate files for a given bucket, use the `--only-dups` option.
 
