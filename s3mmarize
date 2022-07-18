@@ -1,41 +1,125 @@
-#!/bin/bash
+#!/usr/bin/python3
+"""
+Summarize a Google S3 bucket.
+Use `summary` to generate a tab-delimited summary for the number of files and storage in a Google S3 bucket.
+Use `dedup` to generate a tab-delimited list of duplicate files in a Google S3 bucket.
 
-## set local variables
-echo "Setting local variables."
-export bucket=$1
-export out_file=$2
-export detailed=$3
-if [ "$detailed" != "--detailed" ]; then
-    export detailed=""
-fi
-export names_file=abc123.csv
-export vals_file=xyz321.csv
+Usage:
+  s3mmarize.py summarize <bucket_name> <out_file> [--cd] [--detailed]
+  s3mmarize.py dedup <bucket_name> <out_file> [--cd] [--include-dirs] [--only-dups]
 
-## make call to Google
-echo "Using gsutil to get file list."
-gsutil ls -lr $bucket                   `## list detailed recursive bucket info` \
-| egrep -v -e "/:|bytes"                `## remove some of the dirs and the total statement` \
-| sed -e 's/^[[:space:]]*//'            `## remove leading whitespace` \
-| grep -v '^$'                          `## remove blank lines` \
-> temp.txt
+Options:
+  -h --help     Show this screen.
+  --version     Show version.
+  --cd          Saves output file as a comma delimited CSV (tab-delimited recommended).
+  --detailed    Use file extensions in grouped summary results (for use with `summarize`).
+  --include-dirs  Include directories in dedup summaries (for use with `dedup`).
+  --only-dups  Saves output file with only the duplicate files (for use with `dedup`).
 
-## get file names
-echo "Getting file names."
-cat temp.txt 				`## print list` \
-| sed 's/.*Z  //' 			`## capture paths, after timestamp` \
-> $names_file				`## pipe results into $names_file` \
+"""
 
-## get memory usage and timestamp
-echo "Getting memory usage."
-cat temp.txt                            `## print list` \
-| cut -dZ -f1 				`## capture everything before the end of timestamp` \
-| tr -s " " , 				`## replace spaces with commas for CSV` \
-> $vals_file				`## pipe results into $vals_file`
+## necessary imports
+import pandas as pd
+from docopt import docopt
+from google.cloud import storage
 
-## remove temp
-rm temp.txt
+## udf to get out file delimiter
+def get_delim(commas):
+    if commas:
+        return ","
+    return "\t"
 
-## run python to create dataframe
-echo "Using python to create summary data."
-python3 s3mmarize-internal.py summarize $bucket $names_file $vals_file $out_file $detailed
-echo "File saved."
+## udf to generate file extension
+def get_extension(x):
+    spl = x.split(".")
+    spl_len = len(spl)
+    if(spl_len > 1):
+      return spl[len(spl)-1]
+    return None
+
+## udf to convert bytes into human readable format
+def sizeof_fmt(num, suffix="B"):
+    for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
+        if abs(num) < 1024.0:
+            return f"{num:3.1f}{unit}{suffix}"
+        num /= 1024.0
+    return f"{num:.1f}Yi{suffix}"
+
+## udf to retreive parent directory from name
+def get_parent_dir(b_name):
+    s = b_name.split("/")
+    return "/".join(s[0:(len(s)-1)])
+
+## udf to get blobs
+def get_blobs(bucket_name):
+    print("Getting blobs from Google...")
+    CS = storage.Client()
+    return CS.list_blobs(bucket_name.replace("gs://",""))
+
+## udf to create base_df
+def create_base_df(blobs):
+    print("Organizing bucket attributes...")
+    return pd.DataFrame([{'blob': b.name,
+                'parent_directory': get_parent_dir(b.name),
+                 'file_extension': get_extension(b.name),
+                 'md5_hash': b.md5_hash,
+                 'size': b.size} for b in blobs])
+
+## udf to format results df
+def setup_summarize_df(both_df):
+    both_df = both_df.rename(columns={"exists":"count"})
+    both_df['count'] = both_df['count'].astype(int)
+    both_df = both_df.sort_values("size",ascending=False)
+    both_df['size'] = [sizeof_fmt(x) for x in both_df['size']]
+
+    return both_df
+
+## udf to summarize
+def summarize(bucket_name, detailed=False):
+    ## get blobs & base df
+    blobs = get_blobs(bucket_name)
+    df = create_base_df(blobs)
+
+    ## setup for summarize
+    df['exists'] = 1
+    df = df.drop(columns=['md5_hash'])
+
+    ## make grouped df
+    if detailed:
+        both_df = df.groupby(['parent_directory','file_extension']).sum().reset_index()[['parent_directory', 'file_extension', 'exists', 'size']]
+    else:
+        both_df = df.groupby(['parent_directory']).sum().reset_index()
+
+    return setup_summarize_df(both_df)
+
+## function to get hashes and setup df
+def dedup(bucket_name, include_dirs=False):
+    blobs = get_blobs(bucket_name)
+    df = create_base_df(blobs)
+
+    if args['--include-dirs'] is False:
+        df = df.loc[[x is not None for x in df['file_extension']]]
+    df.loc[:,'duplicated'] = df['md5_hash'].duplicated(keep=False)
+
+    return df
+
+if __name__ == '__main__':
+    ## collect args
+    args = docopt(__doc__, version="s3mmarize 1.0")
+    sep = get_delim(args['--cd'])
+    ## get summaries
+    if args['summarize']:
+        ## summarize
+        odf = summarize(args["<bucket_name>"], args['--detailed'])
+        print("Printing summary...")
+        print(odf)
+        odf.to_csv(args["<out_file>"],index=False,sep=sep)
+    elif args['dedup']:
+        ## dedup
+        odf = dedup(args["<bucket_name>"], args['--include-dirs'])
+        if(args['--only-dups']):
+            odf = odf.loc[odf['duplicated']]
+        print("Printing summary...")
+        print(odf)
+        odf.to_csv(args["<out_file>"],index=False,sep=sep)
+    print("Saved output to {}.".format(args["<out_file>"]))
