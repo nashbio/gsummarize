@@ -62,7 +62,7 @@ def create_base_df(blobs):
     return pd.DataFrame([{'blob': b.name,
                 'parent_directory': get_parent_dir(b.name),
                  'file_extension': get_extension(b.name),
-                 'md5_hash': b.md5_hash,
+                 'hash': b.crc32c,
                  'size': b.size} for b in blobs])
 
 ## udf to format results df
@@ -82,7 +82,7 @@ def summarize(bucket_name, detailed=False):
 
     ## setup for summarize
     df['exists'] = 1
-    df = df.drop(columns=['md5_hash'])
+    df = df.drop(columns=['hash'])
 
     ## make grouped df
     if detailed:
@@ -99,7 +99,7 @@ def dedup(bucket_name, include_dirs=False):
 
     if args['--include-dirs'] is False:
         df = df.loc[[x is not None for x in df['file_extension']]]
-    df.loc[:,'duplicated'] = df['md5_hash'].duplicated(keep=False)
+    df.loc[:,'duplicated'] = df['hash'].duplicated(keep=False)
 
     return df
 
