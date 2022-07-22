@@ -113,7 +113,7 @@ def run_gsummarize():
         ## summarize
         odf = summarize(args["<bucket_name>"], args['--detailed'])
         print("Printing summary...")
-        print(odf)
+        print(odf.head().to_string(index=False))
         odf.to_csv(args["<out_file>"],index=False,sep=sep)
     elif args['dedup']:
         ## dedup
@@ -121,6 +121,6 @@ def run_gsummarize():
         if(args['--only-dups']):
             odf = odf.loc[odf['duplicated']]
         print("Printing summary...")
-        print(odf)
+        print(odf.head().to_string(index=False))
         odf.to_csv(args["<out_file>"],index=False,sep=sep)
     print("Saved output to {}.".format(args["<out_file>"]))
