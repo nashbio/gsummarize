@@ -1,0 +1,10 @@
+[project]
+name = "gsummarize"
+version = "1.0.1"
+dependencies = [
+    "pandas",
+    "docopt",
+    "google-cloud-storage"
+]
+[project.scripts]
+gsummarize = "gsummarize:run_gsummarize"

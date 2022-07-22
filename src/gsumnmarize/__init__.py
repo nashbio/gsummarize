@@ -5,8 +5,8 @@ Use `summary` to generate a tab-delimited summary for the number of files and st
 Use `dedup` to generate a tab-delimited list of duplicate files in a Google S3 bucket.
 
 Usage:
-  gsmmarize.py summarize <bucket_name> <out_file> [--cd] [--detailed]
-  gsmmarize.py dedup <bucket_name> <out_file> [--cd] [--include-dirs] [--only-dups]
+  gsummarize.py summarize <bucket_name> <out_file> [--cd] [--detailed]
+  gsummarize.py dedup <bucket_name> <out_file> [--cd] [--include-dirs] [--only-dups]
 
 Options:
   -h --help     Show this screen.
@@ -103,9 +103,10 @@ def dedup(bucket_name, include_dirs=False):
 
     return df
 
-if __name__ == '__main__':
+## function to hold code
+def run_gsummarize():
     ## collect args
-    args = docopt(__doc__, version="gsmmarize 1.0")
+    args = docopt(__doc__, version="gsummarize 1.0.1")
     sep = get_delim(args['--cd'])
     ## get summaries
     if args['summarize']:

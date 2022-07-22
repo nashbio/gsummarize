@@ -1,4 +1,4 @@
-# gsmmarize
+# gsummarize
 
 A command line tools to summarize files in a Google cloud S3 bucket. The `summary` command generates a tab-delimited summary of files, file types, and storage usage. The `dedup` command generates a tab-delimited list of duplicate files in a Google cloud S3 bucket. Note that given the oft-included comma in filenames, tab-delimited output is preferred -- use `--cd` to override and save outputs as comma-delimited files.
 
@@ -11,7 +11,7 @@ The following command summarizes the bucket, `gs://path/to/bucket`, and outputs 
 
 
 ```bash
-gsmmarize summarize gs://path/to/bucket output.csv --detailed
+gsummarize summarize gs://path/to/bucket output.csv --detailed
 ```
 
 This produces results that look like the following:
@@ -41,7 +41,7 @@ And a non-detailed (e.g. without the `--detailed` flag) version groups just by t
 The following command lists the MD5 hashes of all blobs in the bucket, `gs://path/to/bucket`, determines duplicate hashes, and outputs the resulting table to `output.csv`. The `--include-dirs` flag will include directories when determining duplicates. To only output the duplicate files for a given bucket, use the `--only-dups` option.
 
 ```bash
-gsmmarize dedup gs://path/to/bucket output.csv --include-dirs
+gsummarize dedup gs://path/to/bucket output.csv --include-dirs
 ```
 
 This produces results that look like the following:
