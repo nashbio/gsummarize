@@ -6,7 +6,7 @@ Use `dedup` to generate a tab-delimited list of duplicate files in a Google S3 b
 
 Usage:
   gsmmarize.py summarize <bucket_name> <out_file> [--cd] [--detailed]
-  gsmarrize.py dedup <bucket_name> <out_file> [--cd] [--include-dirs] [--only-dups]
+  gsmmarize.py dedup <bucket_name> <out_file> [--cd] [--include-dirs] [--only-dups]
 
 Options:
   -h --help     Show this screen.
