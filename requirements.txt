@@ -1,0 +1,3 @@
+pandas
+docopt
+google-cloud-storage
