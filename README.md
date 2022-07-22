@@ -4,6 +4,13 @@ A command line tools to summarize files in a Google cloud S3 bucket. The `summar
 
 For proper usage, either run the module in a the Google Cloud Shell or set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to the proper service account key. Note also that after setting these credentials, the output CSV can be specified as a `gsutil` URI (e.g., a user can save the resulting file to a GCP bucket).
 
+## Installation
+
+Download the most recent release [here](https://github.com/nashbio/gsummarize/releases/) and run the following command:
+
+```python
+pip install gsummarize-1.0.1.tar.gz
+```
 
 ## `summary` example
 
