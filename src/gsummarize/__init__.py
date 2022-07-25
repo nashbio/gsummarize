@@ -54,7 +54,13 @@ def get_parent_dir(b_name):
 def get_blobs(bucket_name):
     print("Getting blobs from Google...")
     CS = storage.Client()
-    return CS.list_blobs(bucket_name.replace("gs://",""))
+    bucket_name = bucket_name.replace("gs://","")
+    if "/" in bucket_name:
+        blist = bucket_name.split("/")
+        bname = blist.pop(0)
+        prefix = "/".join(blist)
+        return CS.list_blobs(bname, prefix)
+    return CS.list_blobs(bucket_name)
 
 ## udf to create base_df
 def create_base_df(blobs):
@@ -104,10 +110,10 @@ def dedup(bucket_name, include_dirs=False):
     return df
 
 ## udf to print summary, save csv
-def finish_df(odf):
+def finish_df(odf, out_file, sep):
     print("Printing summary...")
     print(odf.head().to_string(index=False))
-    odf.to_csv(args["<out_file>"],index=False,sep=sep)
+    odf.to_csv(out_file,index=False,sep=sep)
 
 ## function to run module
 def run_gsummarize():
@@ -118,12 +124,12 @@ def run_gsummarize():
     if args['summarize']:
         ## summarize
         odf = summarize(args["<bucket_name>"], args['--detailed'])
-        finish_df(odf)
+        finish_df(odf, args["<out_file>"], sep)
         
     elif args['dedup']:
         ## dedup
         odf = dedup(args["<bucket_name>"], args['--include-dirs'])
         if(args['--only-dups']):
             odf = odf.loc[odf['duplicated']]
-        finish_df(odf)
+        finish_df(odf, args["<out_file>"], sep)
     print("Saved output to {}.".format(args["<out_file>"]))
