@@ -97,11 +97,17 @@ def dedup(bucket_name, include_dirs=False):
     blobs = get_blobs(bucket_name)
     df = create_base_df(blobs)
 
-    if args['--include-dirs'] is False:
+    if include_dirs is False:
         df = df.loc[[x is not None for x in df['file_extension']]]
     df.loc[:,'duplicated'] = df['hash'].duplicated(keep=False)
 
     return df
+
+## udf to print summary, save csv
+def finish_df(odf):
+    print("Printing summary...")
+    print(odf.head().to_string(index=False))
+    odf.to_csv(args["<out_file>"],index=False,sep=sep)
 
 ## function to run module
 def run_gsummarize():
@@ -112,15 +118,12 @@ def run_gsummarize():
     if args['summarize']:
         ## summarize
         odf = summarize(args["<bucket_name>"], args['--detailed'])
-        print("Printing summary...")
-        print(odf.head().to_string(index=False))
-        odf.to_csv(args["<out_file>"],index=False,sep=sep)
+        finish_df(odf)
+        
     elif args['dedup']:
         ## dedup
         odf = dedup(args["<bucket_name>"], args['--include-dirs'])
         if(args['--only-dups']):
             odf = odf.loc[odf['duplicated']]
-        print("Printing summary...")
-        print(odf.head().to_string(index=False))
-        odf.to_csv(args["<out_file>"],index=False,sep=sep)
+        finish_df(odf)
     print("Saved output to {}.".format(args["<out_file>"]))
