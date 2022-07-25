@@ -59,7 +59,7 @@ def get_blobs(bucket_name):
         blist = bucket_name.split("/")
         bname = blist.pop(0)
         prefix = "/".join(blist)
-        return CS.list_blobs(bname, prefix)
+        return CS.list_blobs(bname, prefix=prefix)
     return CS.list_blobs(bucket_name)
 
 ## udf to create base_df

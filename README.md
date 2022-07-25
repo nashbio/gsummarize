@@ -1,15 +1,20 @@
 # gsummarize
 
-A command line tools to summarize files in a Google cloud S3 bucket. The `summary` command generates a tab-delimited summary of files, file types, and storage usage. The `dedup` command generates a tab-delimited list of duplicate files in a Google cloud S3 bucket. Note that given the oft-included comma in filenames, tab-delimited output is preferred -- use `--cd` to override and save outputs as comma-delimited files.
+A command line tools to summarize files in a Google cloud S3 bucket. The `summary` command generates a tab-delimited summary of files, file types, and storage usage. The `dedup` command generates a tab-delimited list of duplicate files in a Google cloud S3 bucket. Note that given occasional comma's in filenames, tab-delimited output is by default -- use `--cd` to override and save outputs as comma-delimited files.
 
-For proper usage, either run the module in a the Google Cloud Shell or set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to the proper service account key. Note also that after setting these credentials, the output CSV can be specified as a `gsutil` URI (e.g., a user can save the resulting file to a GCP bucket).
+For proper usage, either run the module in a the Google Cloud Shell or set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to the proper service account key. 
+
+### Additional features
+
+- After setting Google credentials, the output CSV can be specified as a `gsutil` URI to save the resulting file to a GCP bucket, e.g. `gs://path/to/bucket/summary.csv`.
+- Users can also summarize or deduplicate sub-directories of buckets, e.g. `gs://path/to/bucket/sub/dir`.
 
 ## Installation
 
 Download the most recent release [here](https://github.com/nashbio/gsummarize/releases/) and run the following command:
 
 ```python
-pip install gsummarize-1.0.1.tar.gz
+pip install gsummarize-1.0.2.tar.gz
 ```
 
 ## `summary` example
