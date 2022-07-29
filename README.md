@@ -1,6 +1,6 @@
 # gsummarize
 
-A command line tools to summarize files in a Google cloud S3 bucket. The `summary` command generates a tab-delimited summary of files, file types, and storage usage. The `dedup` command generates a tab-delimited list of duplicate files in a Google cloud S3 bucket. Note that given occasional comma's in filenames, tab-delimited output is by default -- use `--cd` to override and save outputs as comma-delimited files.
+A command line tools to summarize files in a Google Cloud Storage bucket. The `summary` command generates a tab-delimited summary of files, file types, and storage usage. The `dedup` command generates a tab-delimited list of duplicate files in a Google cloud S3 bucket. Note that given occasional comma's in filenames, tab-delimited output is by default -- use `--cd` to override and save outputs as comma-delimited files.
 
 For proper usage, either run the module in a the Google Cloud Shell or set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to the proper service account key. 
 
