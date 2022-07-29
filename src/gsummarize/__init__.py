@@ -92,7 +92,7 @@ def summarize(bucket_name, detailed=False):
 
     ## make grouped df
     if detailed:
-        both_df = df.groupby(['parent_directory','file_extension']).sum().reset_index()[['parent_directory', 'file_extension', 'exists', 'size']]
+        both_df = df.groupby(['parent_directory','file_extension']).sum().reset_index()[['parent_directory', 'file_extension', 'size', 'exists']]
     else:
         both_df = df.groupby(['parent_directory']).sum().reset_index()
 

@@ -28,13 +28,13 @@ gsummarize summarize gs://path/to/bucket output.csv --detailed
 
 This produces results that look like the following:
 
-| **parent_directory** | **file_extension** | **count** | **size** |
-| -------------------- | ------------------ | --------- | -------- |
-| /path/to/dir1        | gz                 | 24        | 1.6GiB   |
-| /path/to/dir2        | json               | 21        | 203.7MiB |
-| /path/to/dir3        | docx               | 34        | 104.3MiB |
-| /path/to/dir3        | pdf                | 31        | 85.7MiB  |
-| /path/to/dir1        | txt                | 111       | 71.1MiB  |
+| **parent_directory** | **file_extension** | **size** | **count** |
+| -------------------- | ------------------ | -------- | --------- |
+| /path/to/dir1        | gz                 | 1.6GiB   | 24        |
+| /path/to/dir2        | json               | 203.7MiB | 21        |
+| /path/to/dir3        | docx               | 104.3MiB | 34        |
+| /path/to/dir3        | pdf                | 85.7MiB  | 31        |
+| /path/to/dir1        | txt                | 71.1MiB  | 111       |
 
 And a non-detailed (e.g. without the `--detailed` flag) version groups just by the `parent_directory` and produces output like the following:
 
@@ -50,7 +50,7 @@ And a non-detailed (e.g. without the `--detailed` flag) version groups just by t
 
 ## `dedup` exmaple
 
-The following command lists the MD5 hashes of all blobs in the bucket, `gs://path/to/bucket`, determines duplicate hashes, and outputs the resulting table to `output.csv`. The `--include-dirs` flag will include directories when determining duplicates. To only output the duplicate files for a given bucket, use the `--only-dups` option.
+The following command lists the CRC32C hashes of all blobs in the bucket, `gs://path/to/bucket`, determines duplicate hashes, and outputs the resulting table to `output.csv`. The `--include-dirs` flag will include directories when determining duplicates. To only output the duplicate files for a given bucket, use the `--only-dups` option.
 
 ```bash
 gsummarize dedup gs://path/to/bucket output.csv --include-dirs
@@ -58,11 +58,11 @@ gsummarize dedup gs://path/to/bucket output.csv --include-dirs
 
 This produces results that look like the following:
 
-| **blob**       | **parent_dir** | **file_extension** | **md5_hash** | **size** | **duplicated** |
-| -------------- | -------------- | ------------------ | ------------ | -------- | -------------- |
-| /path/to/dir1  | dir1           | NA                 | abcd1234     | 11       | FALSE          |
-| /path/to/dir2  | dir2           | NA                 | abcd4231     | 11       | FALSE          |
-| /path/to/file1 | dir1           | csv                | wxyz1234     | 240      | TRUE           |
-| /path/to/file2 | dir1           | gz                 | abcd5678     | 38       | FALSE          |
-| /path/to/file3 | dir2           | csv                | wxyz1234     | 167      | TRUE           |
+| **blob**       | **parent_directory** | **file_extension** | **hash** 	| **size** | **duplicated** |
+| -------------- | -------------- 		| ------------------ | ------------ | -------- | -------------- |
+| /path/to/dir1  | dir1           		| None               | abcd1234     | 11       | False          |
+| /path/to/dir2  | dir2           		| None               | abcd4231     | 11       | False          |
+| /path/to/file1 | dir1           		| csv                | wxyz1234     | 240      | True           |
+| /path/to/file2 | dir1           		| gz                 | abcd5678     | 38       | False          |
+| /path/to/file3 | dir2           		| csv                | wxyz1234     | 167      | True           |
 
