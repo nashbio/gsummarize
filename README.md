@@ -14,7 +14,7 @@ For proper usage, either run the module in a the Google Cloud Shell or set the e
 Download the most recent release [here](https://github.com/nashbio/gsummarize/releases/) and run the following command:
 
 ```python
-pip install gsummarize-1.0.2.tar.gz
+pip install gsummarize-1.0.3.tar.gz
 ```
 
 ## `summary` example
